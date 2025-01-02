@@ -1,4 +1,5 @@
 import { Role } from 'src/roles/entities/role.entity';
+import { IUserActive } from 'src/utils/enums';
 import {
   Column,
   Entity,
@@ -18,16 +19,16 @@ export class User {
   @Column()
   lastname: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   city: string;
 
-  @Column()
+  @Column({ nullable: true })
   postcode: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
   @Column({ unique: true })
@@ -36,10 +37,17 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   about_text: string;
 
   @ManyToOne(() => Role, (role) => role.id)
   @JoinColumn({ name: 'role_id' })
   role_id: string;
+
+  @Column({
+    type: 'enum',
+    enum: IUserActive,
+    default: IUserActive.INACTIVE,
+  })
+  is_active: IUserActive;
 }
