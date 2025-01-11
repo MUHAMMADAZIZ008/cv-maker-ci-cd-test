@@ -1,16 +1,16 @@
 services:
 
   postgres-db:
-    container_name: online_platform_postgres
-    image: postgres
+    container_name: cv-postgres
+    image: postgres:alpine
     environment:
-      POSTGRES_DB: cv-maker
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 3636
     volumes:
-      - online_platform_volume:/var/lib/postgresql/data
+      - cv-volume:/var/lib/postgresql/data
     ports:
-      - "5436:5436"
+      - "5436:5432"
     networks:
       - cv_nerwork
     restart: unless-stopped
@@ -31,4 +31,4 @@ networks:
     driver: bridge
 
 volumes:
-  online_platform_volume:
+  cv-volume:
