@@ -1,0 +1,34 @@
+services:
+
+  postgres-db:
+    container_name: online_platform_postgres
+    image: postgres
+    environment:
+      POSTGRES_DB: cv-maker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 3636
+    volumes:
+      - online_platform_volume:/var/lib/postgresql/data
+    ports:
+      - "5436:5436"
+    networks:
+      - cv_nerwork
+    restart: unless-stopped
+
+  backend-app:
+    container_name: cv-maker
+    build: 
+      context: .
+    networks:
+      - cv_nerwork
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres-db
+
+networks:
+  cv_nerwork:
+    driver: bridge
+
+volumes:
+  online_platform_volume:
