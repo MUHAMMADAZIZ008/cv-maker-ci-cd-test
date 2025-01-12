@@ -1,10 +1,10 @@
-name: NestJS CD
+name: Node.js CD
 
 on:
   push:
-    branches: ['master']
+    branches: ['main']
   pull_request:
-    branches: ['master']
+    branches: ['main']
 
 jobs:
   build:
@@ -12,46 +12,39 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }} - ${{secrets.HOST}}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - run: npm i
 
-      - name: Install dependencies
-        run: npm install
-
-
-      - name: Build application
-        run: npm run build
-
-    
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+       - name: Checkout repository
+         uses: actions/checkout@v3
 
-      - name: Set up SSH key
-        run: |
+       - name: Set up SSH key
+         run: |
+          env
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p 22 ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
-        run: |
+       - name: Deploy to server
+         run: |
           ssh -v -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} <<'ENDSSH'
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ secrets.DOCKER_TAG }}
-          docker stop ${{ secrets.CONTAINER }}
-          docker rm ${{ secrets.CONTAINER }}
-          docker run -p 2124:3000 -d --name=${{ secrets.CONTAINER }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ secrets.DOCKER_TAG }}
-          docker logout
+          docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_TOKEN}}
+          docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPO}}:${{secrets.DOCKER_TAG}}
+          docker stop ${{secrets.CONTAINER}}
+          docker rm ${{secrets.CONTAINER}}
+          docker run -p 8181:4000 -d --name=${{secrets.CONTAINER}} ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REPO}}:${{secrets.DOCKER_TAG}}
+          docker logout ${{secrets.DOCKER_REPO}}
           ENDSSH
+  
