@@ -13,24 +13,24 @@ services:
       - cv-volume:/var/lib/postgresql/data
     ports:
       - "5436:5432"
-    networks:
-      - cv_nerwork
     restart: unless-stopped
 
   backend-app:
     container_name: cv-maker
     build: 
       context: .
-    networks:
-      - cv_nerwork
     ports:
       - "3000:3000"
     depends_on:
       - postgres-db
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    command: npm run start:dev
 
-networks:
-  cv_nerwork:
-    driver: bridge
 
 volumes:
   cv-volume:
