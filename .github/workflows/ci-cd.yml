@@ -43,6 +43,6 @@ jobs:
           cd ${{secrets.APP_PATH}}
           git pull
           docker compose down
-          docker compose up
+          docker compose up -d
           ENDSSH
   
